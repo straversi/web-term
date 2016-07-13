@@ -42,5 +42,14 @@ def hello():
             response['dirstack'] = path.split("/")
     return jsonify(**response)
 
+@app.route("/tab")
+@crossdomain(origin='*')
+def tab():
+    response = {'result':'hello from flask! '}
+    if request.args.get("expr"):
+        expr = request.args.get("expr")
+        response['result'] += expr
+    return jsonify(**response)
+
 if __name__ == "__main__":
     app.run()

@@ -14,11 +14,13 @@ var terminal = {
 
   setup: function() {
     stdin.addEventListener("keypress", terminal.handleKeyPress);
+    stdin.addEventListener("keydown", terminal.handleTabPress);
     stdin.addEventListener("input", terminal.handleInputChange);
     window.addEventListener("mouseup", terminal.handleMouseUp);
     var cursorElement = document.getElementById("terminal-cursor");
     terminal.cursor = new Cursor(cursorElement);
     terminal.resultsForExpression("", function(response) {
+      console.log("have response");
       result = JSON.parse(response);
       terminal.dirStack = result.dirstack;
       document.getElementById("stdin-1").innerHTML = terminal.prompt();
@@ -28,8 +30,11 @@ var terminal = {
   httpGet: function(url, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+      console.log("state change");
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+        console.log("done");
         callback(xmlHttp.responseText);
+      }
     }
     xmlHttp.open("GET", url, true); // true for asynchronous
     xmlHttp.send(null);
@@ -39,6 +44,7 @@ var terminal = {
    * Perform async GET request for the result of doing command at path.
    * @param {string} path - The current absolute path of the user in the file system.
    * @param {string} expression - The expression to be executed as a command
+   * TODO (1): Refactor this into a function that adds the query params to an input URL.
    */
   getWithPath: function(path, expression, callback) {
     fullUrl = terminal.baseUrl + "?path=" + path + "&expr=" + expression;
@@ -68,15 +74,41 @@ var terminal = {
   },
 
   /**
+   * @access public
+   * Get the results of performing an autofill tab from the current directory.
+   * TODO (2): After the refactor in (1), use the new add query params function
+   *           to add the path to this http get.
+   */
+   resultsForTab: function(callback) {
+     tokens = terminal.stdin.value.split(" ");
+     var incomplete = tokens[tokens.length - 1];
+     var fullUrl = terminal.baseUrl + "tab?expr=" + incomplete;
+     terminal.httpGet(fullUrl, callback);
+   },
+
+  /**
    * If the key pressed is the enter key, submit the contents of input.
    */
   handleKeyPress: function(event) {
+    console.log("hi");
     if (event.keyCode == 13) { // enter
       terminal.resultsForExpression(stdin.value, function(response) {
         result = JSON.parse(response);
         terminal.dirStack = result.dirstack;
         terminal.dom.addLine(result.evaluated);
+        window.scrollTo(0, document.body.scrollHeight);
       });
+    }
+  },
+
+  handleTabPress: function(event) {
+    if (event.keyCode == 9) { // tab
+      terminal.resultsForTab(function(response) {
+        result = JSON.parse(response);
+        terminal.dom.addToInput(result.result);
+      });
+      event.preventDefault();
+      return false;
     }
   },
 
@@ -121,6 +153,10 @@ var terminal = {
     },
     setInputDisplay: function(content) {
       terminal.activeInputElement.innerHTML = content;
+    },
+    addToInput: function(content) {
+      terminal.stdin.value += content;
+      terminal.activeInputElement.innerHTML += content;
     },
   },
 
