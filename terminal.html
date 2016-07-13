@@ -5,15 +5,17 @@
   <title>Terminal Demo</title>
   <style>
     code { font-family: monospace; word-wrap: break-word; }
-    pre { margin-top: 0; margin-bottom: 0; }
+    pre { margin-top: 1px; margin-bottom: 0; }
     /*#terminal { white-space: pre-line; }*/
     #stdin { position: absolute; left: -1000px; }
+    #terminal-cursor { height: 1em; width: 0.5em; display: inline-block;
+      background-color: #878787; vertical-align: -0.2em; }
   </style>
 </head>
 <body>
   <div id="terminal">
     <input type="text" id="stdin" name="stdin" autofocus>
-    <code id="stdin-1"></code><code id="input-display-init"></code>
+    <code id="stdin-1"></code><code id="input-display-init"></code><div id="terminal-cursor"></div>
   </div>
   <script type="text/javascript" src="terminal.js"></script>
 </body>

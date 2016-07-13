@@ -9,10 +9,15 @@ var terminal = {
   element: document.getElementById("terminal"),
   /* The element currently reflecting the input */
   activeInputElement: document.getElementById("input-display-init"),
+  /* The cursor element */
+  cursor: "",
 
   setup: function() {
     stdin.addEventListener("keypress", terminal.handleKeyPress);
     stdin.addEventListener("input", terminal.handleInputChange);
+    window.addEventListener("mouseup", terminal.handleMouseUp);
+    var cursorElement = document.getElementById("terminal-cursor");
+    terminal.cursor = new Cursor(cursorElement);
     terminal.resultsForExpression("", function(response) {
       result = JSON.parse(response);
       terminal.dirStack = result.dirstack;
@@ -83,11 +88,19 @@ var terminal = {
   },
 
   /**
+   * Focus on the input.
+   */
+  handleMouseUp: function(e) {
+    terminal.stdin.focus();
+  },
+
+  /**
    * A subclass that handles dom element creation.
    */
   dom: {
     addLine: function(content) {
       stdin.value = "";
+      var cursor = terminal.element.removeChild(terminal.cursor.element);
 
       lineBreak = document.createElement("br");
       terminal.element.appendChild(lineBreak);
@@ -103,12 +116,33 @@ var terminal = {
       activeDisplay = document.createElement("code");
       terminal.activeInputElement = activeDisplay;
       terminal.element.appendChild(activeDisplay);
+
+      terminal.element.appendChild(cursor);
     },
     setInputDisplay: function(content) {
       terminal.activeInputElement.innerHTML = content;
     },
   },
 
+}
+
+var Cursor = function(element) {
+  this.element = element;
+  this.on = true;
+  element.style.transition = "all 0.1s";
+  var myself = this;
+  // this.interval = setInterval(function() {
+  //   myself.updateBlinkState();
+  // }, 400);
+}
+Cursor.prototype.updateBlinkState = function() {
+  if (this.on) {
+    this.element.style.opacity = "0";
+    this.on = false;
+  } else {
+    this.element.style.opacity = "1";
+    this.on = true;
+  }
 }
 
 terminal.setup();
