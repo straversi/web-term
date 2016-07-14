@@ -42,12 +42,13 @@ var terminal = {
 
   /**
    * Perform async GET request for the result of doing command at path.
-   * @param {string} path - The current absolute path of the user in the file system.
+   * @param {string} url - The base url with no query parameters
+   * @param {string} path - The current absolute path of the user in the file system
    * @param {string} expression - The expression to be executed as a command
-   * TODO (1): Refactor this into a function that adds the query params to an input URL.
    */
-  getWithPath: function(path, expression, callback) {
-    fullUrl = terminal.baseUrl + "?path=" + path + "&expr=" + expression;
+  getWithPathExpression: function(url, path, expression, callback) {
+    fullUrl = url + "?path=" + path + "&expr=" + expression;
+    console.log(url);
     terminal.httpGet(fullUrl, callback);
   },
 
@@ -70,20 +71,21 @@ var terminal = {
    * Submit the current expression, and pass the output to callback.
    */
   resultsForExpression: function(expression, callback) {
-    terminal.getWithPath(terminal.pathFromDirStack(), expression, callback);
+    var url = terminal.baseUrl;
+    terminal.getWithPathExpression(url, terminal.pathFromDirStack(), expression,
+      callback);
   },
 
   /**
    * @access public
    * Get the results of performing an autofill tab from the current directory.
-   * TODO (2): After the refactor in (1), use the new add query params function
-   *           to add the path to this http get.
    */
    resultsForTab: function(callback) {
-     tokens = terminal.stdin.value.split(" ");
+     var tokens = terminal.stdin.value.split(" ");
      var incomplete = tokens[tokens.length - 1];
-     var fullUrl = terminal.baseUrl + "tab?expr=" + incomplete;
-     terminal.httpGet(fullUrl, callback);
+     var url = terminal.baseUrl + "tab"
+     terminal.getWithPathExpression(url, terminal.pathFromDirStack(),
+      incomplete, callback);
    },
 
   /**

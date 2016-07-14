@@ -9,7 +9,7 @@ import re
 class Directory:
 
     def __init__(self, name):
-        """Set the name of the directory and start an empty array to hold
+        """Set the name of the directory and start an empty dict to hold
         files and other directories.
         """
         self.name = name
