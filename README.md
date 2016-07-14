@@ -1,4 +1,4 @@
-# web-term ![icon](32.png) 
+<h1><img src="192.png" height="30" alt="icon" style="display:inline-block;" />web-term</h1>
 
 **What is it?**
 It's half JavaScript, half Python, and it makes a fake, customizable terminal in your browser. It is intended to be used as a fun personal website that is easily explored by other developers who will recognize a familiar format.
