@@ -14,11 +14,13 @@ var terminal = {
 
   setup: function() {
     stdin.addEventListener("keypress", terminal.handleKeyPress);
+    stdin.addEventListener("keydown", terminal.handleTabPress);
     stdin.addEventListener("input", terminal.handleInputChange);
     window.addEventListener("mouseup", terminal.handleMouseUp);
     var cursorElement = document.getElementById("terminal-cursor");
     terminal.cursor = new Cursor(cursorElement);
     terminal.resultsForExpression("", function(response) {
+      console.log("have response");
       result = JSON.parse(response);
       terminal.dirStack = result.dirstack;
       document.getElementById("stdin-1").innerHTML = terminal.prompt();
@@ -28,8 +30,11 @@ var terminal = {
   httpGet: function(url, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+      console.log("state change");
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+        console.log("done");
         callback(xmlHttp.responseText);
+      }
     }
     xmlHttp.open("GET", url, true); // true for asynchronous
     xmlHttp.send(null);
@@ -37,11 +42,13 @@ var terminal = {
 
   /**
    * Perform async GET request for the result of doing command at path.
-   * @param {string} path - The current absolute path of the user in the file system.
+   * @param {string} url - The base url with no query parameters
+   * @param {string} path - The current absolute path of the user in the file system
    * @param {string} expression - The expression to be executed as a command
    */
-  getWithPath: function(path, expression, callback) {
-    fullUrl = terminal.baseUrl + "?path=" + path + "&expr=" + expression;
+  getWithPathExpression: function(url, path, expression, callback) {
+    fullUrl = url + "?path=" + path + "&expr=" + expression;
+    console.log(url);
     terminal.httpGet(fullUrl, callback);
   },
 
@@ -64,19 +71,46 @@ var terminal = {
    * Submit the current expression, and pass the output to callback.
    */
   resultsForExpression: function(expression, callback) {
-    terminal.getWithPath(terminal.pathFromDirStack(), expression, callback);
+    var url = terminal.baseUrl;
+    terminal.getWithPathExpression(url, terminal.pathFromDirStack(), expression,
+      callback);
   },
+
+  /**
+   * @access public
+   * Get the results of performing an autofill tab from the current directory.
+   */
+   resultsForTab: function(callback) {
+     var tokens = terminal.stdin.value.split(" ");
+     var incomplete = tokens[tokens.length - 1];
+     var url = terminal.baseUrl + "tab"
+     terminal.getWithPathExpression(url, terminal.pathFromDirStack(),
+      incomplete, callback);
+   },
 
   /**
    * If the key pressed is the enter key, submit the contents of input.
    */
   handleKeyPress: function(event) {
+    console.log("hi");
     if (event.keyCode == 13) { // enter
       terminal.resultsForExpression(stdin.value, function(response) {
         result = JSON.parse(response);
         terminal.dirStack = result.dirstack;
         terminal.dom.addLine(result.evaluated);
+        window.scrollTo(0, document.body.scrollHeight);
       });
+    }
+  },
+
+  handleTabPress: function(event) {
+    if (event.keyCode == 9) { // tab
+      terminal.resultsForTab(function(response) {
+        result = JSON.parse(response);
+        terminal.dom.addToInput(result.result);
+      });
+      event.preventDefault();
+      return false;
     }
   },
 
@@ -121,6 +155,10 @@ var terminal = {
     },
     setInputDisplay: function(content) {
       terminal.activeInputElement.innerHTML = content;
+    },
+    addToInput: function(content) {
+      terminal.stdin.value += content;
+      terminal.activeInputElement.innerHTML += content;
     },
   },
 

@@ -42,5 +42,18 @@ def hello():
             response['dirstack'] = path.split("/")
     return jsonify(**response)
 
+@app.route("/tab")
+@crossdomain(origin='*')
+def tab():
+    response = {'result':''}
+    if request.args.get("expr") and request.args.get("path"):
+        expr = request.args.get("expr")
+        path = request.args.get("path")
+        current_dir = root.get_dir("/".join(path.split("/")[1:]))
+        search_results = [name for name in current_dir.contents if name.startswith(expr)]
+        if len(search_results) == 1:
+            response['result'] = search_results[0][len(expr):]
+    return jsonify(**response)
+
 if __name__ == "__main__":
     app.run()
