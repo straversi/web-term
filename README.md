@@ -1,4 +1,4 @@
-<img src="192.png" height="32" alt="icon" style="display:inline-block;" /><h1 style="display:inline-block;">web-term</h1>
+<h1>web-term</h1>
 
 **What is it?**
 It's half JavaScript, half Python, and it makes a fake, customizable terminal in your browser. It is intended to be used as a fun personal website that is easily explored by other developers who will recognize a familiar format.
@@ -24,3 +24,5 @@ The server runs on port 5000 by default.
 Upload terminal.html and terminal.js to any service that can deploy a static website. So yes, you can use [GitHub Pages!](https://pages.github.com/)
 
 Deploy `/web_term` to a service that will deploy web applications, like [Heroku](https://community.nitrous.io/tutorials/deploying-a-flask-application-to-heroku)
+
+<img src="192.png" height="32" alt="icon" />
