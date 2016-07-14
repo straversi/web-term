@@ -8,15 +8,16 @@ The file system and commands are hidden on the Flask server, so an experienced d
 
 ## Demo
 
+(Not active yet)
 [Here](http://steven.codes/terminal_demo)
 
 ## Run for development
 
-Run `python3 -m http.server` from `/terminal`
+Run `python3 server.py & python3 -m http.server` to start both the server and the webpage.
 
-Run `python3 server.py` from `/web_term`
+Navigate your browser to [localhost:8000/terminal.html](http://localhost:8000/terminal.html)
 
-Navigate your browser to [localhost:5000/terminal.html](http://localhost:5000/terminal.html)
+The server runs on port 5000 by default.
 
 ## Deploy
 
