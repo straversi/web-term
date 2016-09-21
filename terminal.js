@@ -48,7 +48,6 @@ var terminal = {
    */
   getWithPathExpression: function(url, path, expression, callback) {
     fullUrl = url + "?path=" + path + "&expr=" + expression;
-    console.log(url);
     terminal.httpGet(fullUrl, callback);
   },
 
@@ -92,7 +91,6 @@ var terminal = {
    * If the key pressed is the enter key, submit the contents of input.
    */
   handleKeyPress: function(event) {
-    console.log("hi");
     if (event.keyCode == 13) { // enter
       terminal.resultsForExpression(stdin.value, function(response) {
         result = JSON.parse(response);
